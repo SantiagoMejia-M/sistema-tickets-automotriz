@@ -84,6 +84,13 @@ Historial de citas y servicios terminados:
 
 > 💡 **Acceso en Red Local:** Si conectas otros dispositivos (tablets/smartphones en recepción) a la misma red Wi-Fi, pueden acceder usando la IP de tu computadora (ejemplo: `http://192.168.1.100:3000`).
 
+### ☁️ Despliegue en Render
+Para desplegar este servicio web en [Render.com](https://render.com):
+- **Environment:** `Node`
+- **Build Command:** `npm run build` *(compila `sqlite3` desde código fuente con `--build-from-source` para total compatibilidad con la versión de GLIBC del entorno Linux de Render)*
+- **Start Command:** `npm start`
+- **Plan:** Free / Starter
+
 ---
 
 ## 🛡️ Reglas de Negocio Implementadas

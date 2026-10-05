@@ -4,6 +4,7 @@
   "description": "Sistema de Tickets Automotriz - Chevrolet Chilpancingo (General Motors)",
   "main": "server.js",
   "scripts": {
+    "build": "npm install --build-from-source",
     "start": "node server.js",
     "dev": "node server.js"
   },
