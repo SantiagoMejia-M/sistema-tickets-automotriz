@@ -1,0 +1,2560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tablero de Asesores — Sistema de Tickets Automotriz | Chevrolet Chilpancingo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gm-navy-dark:   #0d1b2a;
+      --gm-navy:        #14243b;
+      --gm-navy-card:   #1b2d49;
+      --gm-blue:        #003366;
+      --gm-blue-light:  #0055a5;
+      --chevy-gold:     #c5a059;
+      --chevy-gold-lt:  #dfb76c;
+      --white:          #ffffff;
+      --gray-50:        #f8fafc;
+      --gray-100:       #f1f5f9;
+      --gray-200:       #e2e8f0;
+      --gray-300:       #cbd5e1;
+      --gray-400:       #94a3b8;
+      --gray-600:       #475569;
+      --green:          #10b981;
+      --amber:          #f59e0b;
+      --red:            #ef4444;
+      --radius:         14px;
+      --shadow-sm:      0 4px 14px rgba(0,0,0,0.2);
+      --shadow-lg:      0 12px 40px rgba(0,0,0,0.35);
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #08111c;
+      color: var(--white);
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(0, 51, 102, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 90% 90%, rgba(197, 160, 89, 0.12) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    /* ════════════════════════════════════════
+       ── LOGIN OVERLAY (BLOQUEO DE PANTALLA) ──
+       ════════════════════════════════════════ */
+    #loginOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(8, 17, 28, 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #loginOverlay.hidden { display: none !important; }
+
+    .login-box {
+      background: var(--white);
+      color: var(--gm-navy-dark);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 450px;
+      padding: 36px 32px;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.7), 0 0 0 2px var(--chevy-gold);
+      text-align: center;
+      animation: popIn .3s cubic-bezier(.34,1.46,.64,1);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.92) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .login-emblem {
+      width: 70px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--gm-navy-dark) 0%, var(--gm-blue) 100%);
+      border: 2px solid var(--chevy-gold);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 6px 16px rgba(197, 160, 89, 0.35);
+    }
+
+    .login-emblem svg { width: 44px; height: 18px; }
+
+    .login-box h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--gm-navy-dark);
+      margin-bottom: 4px;
+    }
+
+    .login-box .dealer-sub {
+      font-size: .82rem;
+      color: #997327;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .login-box p {
+      font-size: .86rem;
+      color: var(--gray-600);
+      margin-bottom: 22px;
+      line-height: 1.4;
+    }
+
+    .login-form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .login-form-group label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 800;
+      color: var(--gm-navy-dark);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .select-wrapper { position: relative; }
+
+    .select-wrapper select {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gm-navy-dark);
+      background: var(--gray-50);
+      border: 2px solid var(--gray-300);
+      border-radius: 12px;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      outline: none;
+      transition: all .2s;
+    }
+
+    .select-wrapper select:focus {
+      border-color: var(--chevy-gold);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.25);
+    }
+
+    .select-wrapper::after {
+      content: '';
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 7px solid var(--gm-navy-dark);
+      pointer-events: none;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--gm-blue) 0%, var(--gm-navy-dark) 100%);
+      color: var(--white);
+      border: 1.5px solid var(--chevy-gold);
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: .04em;
+      transition: all .2s;
+      box-shadow: 0 6px 18px rgba(0, 51, 102, 0.35);
+    }
+
+    .btn-login:hover {
+      background: linear-gradient(135deg, #004c99 0%, var(--gm-navy) 100%);
+      color: var(--chevy-gold-lt);
+      transform: translateY(-2px);
+    }
+
+    .login-error {
+      color: var(--red);
+      font-size: .8rem;
+      font-weight: 700;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* ════════════════════════════════════════
+       ── ENCABEZADO CORPORATIVO GM ──
+       ════════════════════════════════════════ */
+    header {
+      background: rgba(13, 27, 42, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--chevy-gold);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .chevy-emblem-header {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #1b2e4b 0%, #0d1b2a 100%);
+      border: 1.5px solid var(--chevy-gold);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(197, 160, 89, 0.25);
+      flex-shrink: 0;
+    }
+
+    .chevy-emblem-header svg { width: 30px; height: 14px; }
+
+    .header-title h1 {
+      color: white;
+      font-size: 1.12rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .header-title .subtitle {
+      color: var(--chevy-gold-lt);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .gm-badge-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 3px;
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.06);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .gm-badge-strip span { color: var(--chevy-gold); }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* Asesor logueado badge */
+    .advisor-badge {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid var(--chevy-gold);
+      padding: 6px 14px;
+      border-radius: 30px;
+    }
+
+    .advisor-avatar {
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, var(--chevy-gold) 0%, #997327 100%);
+      color: var(--gm-navy-dark);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: .72rem;
+    }
+
+    .advisor-name {
+      font-size: .84rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.8);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: .7rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-logout:hover {
+      background: rgba(239,68,68,0.25);
+      border-color: var(--red);
+      color: white;
+    }
+
+    /* Botón Ver Historial General */
+    .btn-history-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: linear-gradient(135deg, rgba(0, 51, 102, 0.8) 0%, rgba(13, 27, 42, 0.9) 100%);
+      border: 1.5px solid var(--chevy-gold);
+      color: white;
+      padding: 7px 14px;
+      border-radius: 9px;
+      font-size: .82rem;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: .02em;
+      transition: all .2s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-history-trigger:hover {
+      background: linear-gradient(135deg, var(--gm-blue) 0%, #004c99 100%);
+      color: var(--chevy-gold-lt);
+      transform: translateY(-1px);
+    }
+
+    .btn-history-trigger svg { width: 16px; height: 16px; fill: var(--chevy-gold); }
+
+    /* Indicador estado servidor */
+    .conn-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,.7);
+      font-size: .76rem;
+      font-weight: 600;
+    }
+
+    .conn-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--gray-400);
+      flex-shrink: 0;
+    }
+
+    .conn-dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .conn-dot.connecting { background: var(--chevy-gold); animation: pulse 1.2s infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+    /* Reloj */
+    .header-datetime {
+      text-align: right;
+      color: white;
+    }
+
+    .datetime-time {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--chevy-gold);
+      line-height: 1;
+    }
+
+    .datetime-date {
+      font-size: .7rem;
+      color: rgba(255,255,255,.6);
+      text-transform: capitalize;
+    }
+
+    .link-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,.8);
+      text-decoration: none;
+      font-size: .78rem;
+      font-weight: 700;
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.2);
+      transition: background .2s;
+    }
+
+    .link-back:hover { background: rgba(255,255,255,.1); color: var(--chevy-gold); }
+    .link-back svg { width: 14px; height: 14px; fill: currentColor; }
+
+    /* ════════════════════════════════════════
+       ── TABLERO DE 2 COLUMNAS ──
+       ════════════════════════════════════════ */
+    main {
+      padding: 24px 28px 60px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .board-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 26px;
+      align-items: start;
+    }
+
+    .board-column {
+      background: rgba(13, 27, 42, 0.65);
+      border: 1px solid rgba(197, 160, 89, 0.25);
+      border-radius: 18px;
+      padding: 20px;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .col-title-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .col-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .col-icon.general {
+      background: rgba(0, 51, 102, 0.6);
+      border: 1px solid var(--chevy-gold);
+    }
+
+    .col-icon.general svg { width: 20px; height: 20px; fill: var(--chevy-gold); }
+
+    .col-icon.my {
+      background: rgba(197, 160, 89, 0.2);
+      border: 1px solid var(--chevy-gold);
+    }
+
+    .col-icon.my svg { width: 20px; height: 20px; fill: var(--chevy-gold-lt); }
+
+    .column-header h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: .02em;
+    }
+
+    .col-badge {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .col-badge.general {
+      background: rgba(0, 51, 102, 0.7);
+      color: #93c5fd;
+      border: 1px solid rgba(0, 85, 165, 0.4);
+    }
+
+    .col-badge.my {
+      background: rgba(197, 160, 89, 0.2);
+      color: var(--chevy-gold-lt);
+      border: 1px solid rgba(197, 160, 89, 0.4);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 16px;
+      flex: 1;
+      align-content: start;
+    }
+
+    /* Estados vacíos */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255,255,255,0.35);
+      gap: 14px;
+      flex: 1;
+    }
+
+    .empty-state svg { width: 54px; height: 54px; fill: rgba(197, 160, 89, 0.3); }
+
+    .empty-state h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .empty-state p {
+      font-size: .82rem;
+      max-width: 260px;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.4;
+    }
+
+    /* ════════════════════════════════════════
+       ── TARJETA DE VEHÍCULO (TICKET) ──
+       ════════════════════════════════════════ */
+    .vehicle-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: cardIn .25s ease;
+      color: var(--gm-navy-dark);
+      border: 1.5px solid var(--gray-200);
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .vehicle-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(12px) scale(.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-top {
+      background: linear-gradient(135deg, var(--gm-navy-dark) 0%, var(--gm-blue) 100%);
+      padding: 12px 14px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 2px solid var(--chevy-gold);
+    }
+
+    .card-placa {
+      background: rgba(255,255,255,0.12);
+      color: white;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.25);
+      display: inline-block;
+    }
+
+    .card-arrival { text-align: right; }
+
+    .card-arrival-label {
+      color: rgba(255,255,255,.6);
+      font-size: .62rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .card-arrival-time {
+      color: var(--chevy-gold-lt);
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .card-badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 16px;
+      font-size: .66rem;
+      font-weight: 800;
+      margin-top: 5px;
+    }
+
+    .card-badge-status.fresh  { background: rgba(16,185,129,.2);  color: #047857; }
+    .card-badge-status.medium { background: rgba(245,158,11,.2);  color: #b45309; }
+    .card-badge-status.late   { background: rgba(239,68,68,.2);   color: #b91c1c; }
+    .card-badge-status.in-progress {
+      background: rgba(0, 51, 102, 0.15);
+      color: var(--gm-blue);
+      border: 1px solid rgba(0, 51, 102, 0.3);
+    }
+
+    .card-badge-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .card-body {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .card-vehicle-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .car-icon-sm {
+      width: 34px;
+      height: 34px;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .car-icon-sm svg { width: 18px; height: 18px; fill: var(--gm-blue); }
+
+    .card-model {
+      font-weight: 800;
+      font-size: .98rem;
+      color: var(--gm-navy-dark);
+      line-height: 1.2;
+    }
+
+    .card-year {
+      font-size: .78rem;
+      color: var(--gray-600);
+      font-weight: 600;
+    }
+
+    .card-divider {
+      height: 1px;
+      background: var(--gray-200);
+    }
+
+    .card-info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .info-label {
+      font-size: .62rem;
+      font-weight: 800;
+      color: var(--gray-400);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .info-value {
+      font-size: .86rem;
+      color: var(--gm-navy-dark);
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .card-reason {
+      background: var(--gray-50);
+      border-left: 3px solid var(--chevy-gold);
+      border-radius: 0 6px 6px 0;
+      padding: 6px 9px;
+    }
+
+    .card-reason .info-label { color: #997327; }
+    .card-reason .info-value { color: var(--gm-navy-dark); font-style: italic; }
+
+    .btn-details {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--gm-blue) 0%, var(--gm-navy-dark) 100%);
+      color: white;
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all .2s;
+      margin-top: auto;
+    }
+
+    .btn-details:hover {
+      background: linear-gradient(135deg, #004c99 0%, var(--gm-navy) 100%);
+      color: var(--chevy-gold-lt);
+    }
+
+    .btn-details svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .btn-details.my-client {
+      background: linear-gradient(135deg, var(--gm-navy-dark) 0%, #172b4d 100%);
+      border-top: 1px solid rgba(197, 160, 89, 0.3);
+    }
+
+    .btn-details.my-client:hover { color: var(--chevy-gold); }
+
+    /* ════════════════════════════════════════
+       ── MODAL DE DETALLES DEL TICKET ──
+       ════════════════════════════════════════ */
+    #detailModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #detailModal.open { display: flex; }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 17, 28, 0.85);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .modal-box {
+      position: relative;
+      z-index: 1;
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      animation: modalIn .25s cubic-bezier(.34,1.46,.64,1);
+      overflow: hidden;
+      color: var(--gm-navy-dark);
+      border: 2px solid var(--chevy-gold);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--gm-navy-dark) 0%, var(--gm-blue) 100%);
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      color: white;
+      border-bottom: 2px solid var(--chevy-gold);
+    }
+
+    .modal-placa-tag {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      color: white;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      padding: 4px 12px;
+      border-radius: 7px;
+      border: 1.5px solid rgba(255,255,255,.3);
+      margin-bottom: 4px;
+    }
+
+    .modal-header-meta {
+      color: rgba(255,255,255,.75);
+      font-size: .8rem;
+      font-weight: 500;
+    }
+
+    .modal-close-btn {
+      background: rgba(255,255,255,.14);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background .2s;
+    }
+
+    .modal-close-btn:hover { background: rgba(239,68,68,.3); }
+    .modal-close-btn svg { width: 15px; height: 15px; fill: white; }
+
+    .modal-body {
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .detail-section-title {
+      font-size: .7rem;
+      font-weight: 800;
+      color: var(--gray-400);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-top: 10px;
+      margin-bottom: 2px;
+      padding-bottom: 4px;
+      border-bottom: 1.5px solid var(--gray-200);
+    }
+
+    .detail-section-title:first-child { margin-top: 0; }
+
+    .detail-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .detail-row:last-of-type { border-bottom: none; }
+
+    .detail-key {
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--gray-600);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .detail-val {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--gm-navy-dark);
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .detail-val.highlight {
+      color: var(--gm-blue);
+      font-style: italic;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--gray-200);
+      background: var(--gray-50);
+      flex-shrink: 0;
+    }
+
+    .btn-modal-close {
+      flex: 1;
+      padding: 13px;
+      border: 1.5px solid var(--gray-300);
+      background: white;
+      color: var(--gray-600);
+      font-size: .88rem;
+      font-weight: 800;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-modal-close:hover { background: var(--gray-100); border-color: var(--gray-400); }
+
+    .btn-action-attend {
+      flex: 2;
+      padding: 13px;
+      border: 1.5px solid var(--chevy-gold);
+      background: linear-gradient(135deg, var(--gm-blue) 0%, #004c99 100%);
+      color: white;
+      font-size: .88rem;
+      font-weight: 800;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all .2s;
+    }
+
+    .btn-action-attend:hover {
+      background: linear-gradient(135deg, #004c99 0%, #0066cc 100%);
+      color: var(--chevy-gold-lt);
+    }
+
+    .btn-action-finish {
+      flex: 2;
+      padding: 13px;
+      border: 1.5px solid #997327;
+      background: linear-gradient(135deg, var(--chevy-gold) 0%, #dfb76c 100%);
+      color: var(--gm-navy-dark);
+      font-size: .9rem;
+      font-weight: 900;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all .2s;
+      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.4);
+    }
+
+    .btn-action-finish:hover {
+      background: linear-gradient(135deg, #dfb76c 0%, #eed299 100%);
+      transform: translateY(-1px);
+    }
+
+    .btn-disabled { opacity: .6; cursor: not-allowed !important; pointer-events: none; }
+
+    /* ════════════════════════════════════════
+       ── MODAL DE NÚMERO DE ORDEN (5 DÍGITOS) ──
+       ════════════════════════════════════════ */
+    #orderModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 6000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .order-modal-box {
+      position: relative;
+      z-index: 1;
+      background: var(--white);
+      color: var(--gm-navy-dark);
+      border-radius: 18px;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.7);
+      width: 100%;
+      max-width: 440px;
+      padding: 26px 24px;
+      animation: modalIn .25s cubic-bezier(.34,1.46,.64,1);
+      border: 2px solid var(--chevy-gold);
+    }
+
+    .order-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .order-icon-badge {
+      width: 44px;
+      height: 44px;
+      background: rgba(197, 160, 89, 0.2);
+      border: 1.5px solid var(--chevy-gold);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--chevy-gold);
+      flex-shrink: 0;
+    }
+
+    .order-icon-badge svg { width: 24px; height: 24px; fill: currentColor; }
+
+    .order-modal-header h3 {
+      font-size: 1.22rem;
+      font-weight: 800;
+      color: var(--gm-navy-dark);
+      line-height: 1.2;
+    }
+
+    .order-modal-header p {
+      font-size: .8rem;
+      color: var(--gray-600);
+      margin-top: 2px;
+    }
+
+    .order-vehicle-summary {
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      font-size: .84rem;
+      color: var(--gm-navy-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .order-vehicle-summary strong { color: var(--gm-blue); font-weight: 800; }
+
+    .order-input-container { margin-bottom: 18px; }
+
+    .order-input-container label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 800;
+      color: var(--gm-navy-dark);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .order-input-box { position: relative; }
+
+    .order-input-box input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--gm-navy-dark);
+      background: var(--gray-50);
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      letter-spacing: .18em;
+      text-align: center;
+      outline: none;
+      transition: all .2s;
+    }
+
+    .order-input-box input:focus {
+      border-color: var(--chevy-gold);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.25);
+    }
+
+    .order-counter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      font-size: .76rem;
+      font-weight: 800;
+    }
+
+    .order-counter-badge.invalid { color: var(--red); }
+    .order-counter-badge.valid { color: var(--green); }
+
+    .order-error-msg {
+      color: var(--red);
+      font-size: .78rem;
+      font-weight: 700;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .order-modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-order-cancel {
+      flex: 1;
+      padding: 12px;
+      border: 1.5px solid var(--gray-300);
+      background: white;
+      color: var(--gray-600);
+      font-size: .88rem;
+      font-weight: 800;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-order-cancel:hover { background: var(--gray-100); }
+
+    .btn-order-confirm {
+      flex: 2;
+      padding: 12px;
+      border: 1.5px solid #997327;
+      background: linear-gradient(135deg, var(--chevy-gold) 0%, #dfb76c 100%);
+      color: var(--gm-navy-dark);
+      font-size: .9rem;
+      font-weight: 900;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all .2s;
+      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.4);
+    }
+
+    .btn-order-confirm:hover {
+      background: linear-gradient(135deg, #dfb76c 0%, #eed299 100%);
+    }
+
+    /* ════════════════════════════════════════
+       ── MODAL DE HISTORIAL GENERAL ──
+       ════════════════════════════════════════ */
+    #historyModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 5500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .history-modal-box {
+      position: relative;
+      z-index: 1;
+      background: #0d1b2a;
+      border: 2px solid var(--chevy-gold);
+      border-radius: 20px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.8);
+      width: 100%;
+      max-width: 1160px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      animation: modalIn .28s cubic-bezier(.34,1.46,.64,1);
+      overflow: hidden;
+    }
+
+    .history-modal-header {
+      background: linear-gradient(135deg, var(--gm-navy-dark) 0%, var(--gm-blue) 100%);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 2px solid var(--chevy-gold);
+      flex-shrink: 0;
+    }
+
+    .history-header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .history-header-icon {
+      width: 42px;
+      height: 42px;
+      background: rgba(197, 160, 89, 0.2);
+      border: 1.5px solid var(--chevy-gold);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--chevy-gold-lt);
+    }
+
+    .history-header-icon svg { width: 22px; height: 22px; fill: currentColor; }
+
+    .history-header-title h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    .history-header-title p {
+      font-size: .75rem;
+      color: var(--chevy-gold-lt);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .btn-history-close {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 9px;
+      font-size: .84rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-history-close:hover {
+      background: rgba(239,68,68,0.3);
+      border-color: var(--red);
+    }
+
+    .btn-history-close svg { width: 15px; height: 15px; fill: white; }
+
+    .history-modal-bar {
+      padding: 12px 24px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .history-search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid var(--chevy-gold);
+      border-radius: 10px;
+      padding: 8px 14px;
+      width: 100%;
+      max-width: 480px;
+      transition: all .2s;
+    }
+
+    .history-search-container:focus-within {
+      background: rgba(255,255,255,0.14);
+      box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.25);
+    }
+
+    .history-search-container svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--chevy-gold);
+      flex-shrink: 0;
+    }
+
+    .history-search-input {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: .88rem;
+      font-weight: 600;
+      outline: none;
+      width: 100%;
+    }
+
+    .history-search-input::placeholder { color: rgba(255,255,255,0.45); }
+
+    .btn-clear-search {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: rgba(255,255,255,0.7);
+      font-size: .75rem;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 3px 7px;
+      border-radius: 50%;
+      line-height: 1;
+      transition: all .2s;
+    }
+
+    .btn-clear-search:hover { color: white; background: rgba(239,68,68,0.4); }
+
+    .history-count-badge {
+      font-size: .82rem;
+      color: rgba(255,255,255,0.8);
+      white-space: nowrap;
+    }
+
+    .history-count-badge strong { color: var(--chevy-gold-lt); font-size: .95rem; }
+
+    .history-modal-body {
+      overflow-y: auto;
+      padding: 22px 24px 30px;
+      flex: 1;
+      background: #08111c;
+    }
+
+    /* ── Separadores por Día ── */
+    .history-day-group { margin-bottom: 30px; }
+    .history-day-group:last-child { margin-bottom: 10px; }
+
+    .history-day-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+      padding: 0 4px;
+    }
+
+    .history-day-line {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.5), rgba(197, 160, 89, 0.9));
+    }
+
+    .history-day-line.right {
+      background: linear-gradient(90deg, rgba(197, 160, 89, 0.9), rgba(197, 160, 89, 0.5), transparent);
+    }
+
+    .history-day-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--gm-navy-dark) 0%, var(--gm-blue) 100%);
+      color: var(--chevy-gold-lt);
+      border: 1.5px solid var(--chevy-gold);
+      padding: 6px 20px;
+      border-radius: 30px;
+      font-size: .88rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+
+    .history-day-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 18px;
+    }
+
+    /* Tarjeta de Historial */
+    .history-card {
+      background: #f1f5f9;
+      color: var(--gm-navy-dark);
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      border: 1.5px solid var(--gray-300);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: cardIn .25s ease;
+    }
+
+    .history-card-advisor {
+      background: var(--gm-navy-dark);
+      color: white;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .84rem;
+      border-bottom: 2.5px solid var(--chevy-gold);
+    }
+
+    .history-card-advisor svg { width: 16px; height: 16px; fill: var(--chevy-gold); flex-shrink: 0; }
+    .history-card-advisor strong { color: var(--chevy-gold-lt); font-weight: 800; }
+
+    .history-card-top {
+      padding: 12px 14px 8px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .history-card-placa {
+      background: var(--gm-navy-dark);
+      color: white;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: .07em;
+      padding: 3px 10px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .history-orden-badge {
+      display: inline-block;
+      margin-left: 6px;
+      background: rgba(0, 51, 102, 0.12);
+      color: var(--gm-blue);
+      border: 1px solid rgba(0, 51, 102, 0.3);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+
+    .history-card-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 800;
+      background: rgba(16,185,129,0.18);
+      color: #047857;
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+
+    .history-card-status-badge::before { content: '✓'; font-weight: 900; }
+
+    .history-card-body {
+      padding: 10px 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      font-size: .82rem;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed var(--gray-300);
+    }
+
+    .history-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .history-key {
+      font-size: .72rem;
+      font-weight: 800;
+      color: var(--gray-600);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .history-val {
+      font-weight: 700;
+      color: var(--gm-navy-dark);
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .history-vin-badge {
+      font-family: monospace;
+      font-weight: 700;
+      background: var(--gray-200);
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: .05em;
+      color: #0f172a;
+    }
+
+    .history-reason-box {
+      background: var(--gray-200);
+      border-left: 3px solid var(--chevy-gold);
+      border-radius: 0 6px 6px 0;
+      padding: 6px 8px;
+      margin-top: 4px;
+    }
+
+    .history-reason-box .history-key { color: #997327; }
+    .history-reason-box .history-val { font-style: italic; text-align: left; display: block; margin-top: 2px; }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .board-container { grid-template-columns: 1fr; }
+      .board-column { min-height: 420px; }
+    }
+
+    @media (max-width: 680px) {
+      header { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+      .header-datetime { display: none; }
+      main { padding: 16px 14px 40px; }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     ── MODAL DE LOGIN (BLOQUEO DE PANTALLA) ──
+     ════════════════════════════════════════ -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-emblem">
+      <svg viewBox="0 0 100 40">
+        <polygon points="35,0 65,0 65,12 100,12 95,28 65,28 65,40 35,40 35,28 0,28 5,12 35,12" fill="url(#goldGradLogin)" stroke="#f6e05e" stroke-width="2" />
+        <defs>
+          <linearGradient id="goldGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#dfb76c" />
+            <stop offset="50%" stop-color="#c5a059" />
+            <stop offset="100%" stop-color="#997327" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <h2>Acceso de Asesores</h2>
+    <div class="dealer-sub">Chevrolet Chilpancingo · GM</div>
+    <p>Selecciona tu nombre institucional para ingresar al tablero de atención del taller.</p>
+
+    <div class="login-form-group">
+      <label for="advisorSelect">Nombre del asesor</label>
+      <div class="select-wrapper">
+        <select id="advisorSelect">
+          <option value="">-- Selecciona tu nombre --</option>
+          <option value="Asesor 1">Asesor 1</option>
+          <option value="Asesor 2">Asesor 2</option>
+          <option value="Asesor 3">Asesor 3</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="button" class="btn-login" id="btnLogin">Entrar al Tablero de Servicio</button>
+    <div class="login-error" id="loginError">Por favor selecciona un asesor para continuar.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ── ENCABEZADO INSTITUCIONAL GM ──
+     ════════════════════════════════════════ -->
+<header>
+  <div class="header-left">
+    <div class="chevy-emblem-header">
+      <svg viewBox="0 0 100 40">
+        <polygon points="35,0 65,0 65,12 100,12 95,28 65,28 65,40 35,40 35,28 0,28 5,12 35,12" fill="url(#goldGradHead)" stroke="#f6e05e" stroke-width="2" />
+        <defs>
+          <linearGradient id="goldGradHead" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#dfb76c" />
+            <stop offset="50%" stop-color="#c5a059" />
+            <stop offset="100%" stop-color="#997327" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="header-title">
+      <h1>Sistema de Tickets Automotriz</h1>
+      <div class="subtitle">Chevrolet Chilpancingo</div>
+      <div class="gm-badge-strip">
+        CHEVROLET <span>|</span> GMC <span>|</span> CADILLAC <span>|</span> BUICK
+      </div>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <!-- Asesor actual logueado -->
+    <div class="advisor-badge" id="advisorBadge" style="display:none;">
+      <div class="advisor-avatar" id="advisorAvatar">A</div>
+      <span class="advisor-name" id="advisorDisplayName">—</span>
+      <button class="btn-logout" id="btnLogout" title="Cambiar de asesor">Salir</button>
+    </div>
+
+    <!-- Botón Ver Historial General -->
+    <button type="button" class="btn-history-trigger" id="btnOpenHistory" title="Ver historial de autos terminados">
+      <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+      Ver Historial General
+    </button>
+
+    <div class="conn-indicator">
+      <div class="conn-dot connecting" id="connDot"></div>
+      <span id="connText">Conectando…</span>
+    </div>
+
+    <div class="header-datetime">
+      <div class="datetime-time" id="clockTime">00:00</div>
+      <div class="datetime-date" id="clockDate">—</div>
+    </div>
+
+    <a href="index.html" class="link-back">
+      <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Recepción
+    </a>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     ── CONTENIDO PRINCIPAL (2 COLUMNAS) ──
+     ════════════════════════════════════════ -->
+<main>
+  <div class="board-container">
+
+    <!-- ── COLUMNA 1: FILA DE ESPERA GENERAL ── -->
+    <section class="board-column" id="colGeneral">
+      <div class="column-header">
+        <div class="col-title-box">
+          <div class="col-icon general">
+            <svg viewBox="0 0 24 24"><path d="M5 11l1.5-4.5h11L19 11M17.5 16a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-8 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0M3 11h18v6H3z"/></svg>
+          </div>
+          <div>
+            <h2>Fila de espera general</h2>
+          </div>
+        </div>
+        <div class="col-badge general">
+          <span id="countGeneral">0</span> autos
+        </div>
+      </div>
+
+      <div class="empty-state" id="emptyGeneral">
+        <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+        <h3>Sin autos en espera general</h3>
+        <p>Los nuevos registros generados en recepción aparecerán aquí automáticamente.</p>
+      </div>
+
+      <div class="cards-grid" id="gridGeneral" style="display:none;"></div>
+    </section>
+
+    <!-- ── COLUMNA 2: MIS CLIENTES EN ATENCIÓN ── -->
+    <section class="board-column" id="colMyClients">
+      <div class="column-header">
+        <div class="col-title-box">
+          <div class="col-icon my">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 3s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          </div>
+          <div>
+            <h2>Mis clientes en atención</h2>
+          </div>
+        </div>
+        <div class="col-badge my">
+          <span id="countMy">0</span> en atención
+        </div>
+      </div>
+
+      <div class="empty-state" id="emptyMy">
+        <svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+        <h3>No tienes clientes en atención</h3>
+        <p>Toma un vehículo de la fila general presionando "Ver detalles" y luego "Atender y quitar de la fila".</p>
+      </div>
+
+      <div class="cards-grid" id="gridMy" style="display:none;"></div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ════════════════════════════════════════
+     ── MODAL DE DETALLES DEL TICKET ──
+     ════════════════════════════════════════ -->
+<div id="detailModal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <div class="modal-box">
+
+    <!-- Header del modal -->
+    <div class="modal-header">
+      <div>
+        <div class="modal-placa-tag" id="modalPlaca">—</div>
+        <div class="modal-header-meta" id="modalMeta">—</div>
+      </div>
+      <button class="modal-close-btn" id="modalCloseX" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Cuerpo del modal -->
+    <div class="modal-body" id="modalBody"></div>
+
+    <!-- Footer con botones -->
+    <div class="modal-footer">
+      <button class="btn-modal-close" id="modalCloseBtn">Cerrar</button>
+      <div id="modalActionContainer" style="flex:2; display:flex;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ── MODAL DE NÚMERO DE ORDEN (5 DÍGITOS) ──
+     ════════════════════════════════════════ -->
+<div id="orderModal" role="dialog" aria-modal="true" style="display:none;">
+  <div class="modal-backdrop" id="orderModalBackdrop"></div>
+  <div class="order-modal-box">
+
+    <div class="order-modal-header">
+      <div class="order-icon-badge">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      </div>
+      <div>
+        <h3>Número de Orden</h3>
+        <p>Captura la orden para finalizar y archivar el servicio</p>
+      </div>
+    </div>
+
+    <div class="order-vehicle-summary">
+      <div>
+        <strong id="orderSummaryPlaca">—</strong> · <span id="orderSummaryModelo">—</span>
+      </div>
+      <div id="orderSummaryCliente" style="font-size:.78rem; color:var(--gray-600);">—</div>
+    </div>
+
+    <form id="orderForm" novalidate onsubmit="return false;">
+      <div class="order-input-container">
+        <label for="inputNumeroOrden">Número de Orden (Exactamente 5 dígitos) <span style="color:var(--red);">*</span></label>
+        <div class="order-input-box">
+          <input type="text" id="inputNumeroOrden" inputmode="numeric" pattern="[0-9]*" maxlength="5" placeholder="Ej. 12345" autocomplete="off" />
+        </div>
+        <div class="order-counter-bar">
+          <span class="order-counter-badge invalid" id="orderDigitsCounter">Dígitos: 0 / 5 (Requerido: 5 dígitos numéricos)</span>
+        </div>
+        <div class="order-error-msg" id="orderErrorMsg">El Número de Orden es obligatorio y debe tener exactamente 5 dígitos numéricos.</div>
+      </div>
+
+      <div class="order-modal-actions">
+        <button type="button" class="btn-order-cancel" id="btnCancelOrder">Cancelar</button>
+        <button type="button" class="btn-order-confirm" id="btnConfirmOrder">
+          <svg viewBox="0 0 24 24" style="width:17px; height:17px; fill:currentColor;"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+          Confirmar y Guardar
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ── MODAL DE HISTORIAL GENERAL ──
+     ════════════════════════════════════════ -->
+<div id="historyModal" role="dialog" aria-modal="true" style="display:none;">
+  <div class="modal-backdrop" id="historyModalBackdrop"></div>
+  <div class="history-modal-box">
+    
+    <!-- Header del Modal -->
+    <div class="history-modal-header">
+      <div class="history-header-title">
+        <div class="history-header-icon">
+          <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        </div>
+        <div>
+          <h2>Historial General de Atención</h2>
+          <p>Chevrolet Chilpancingo · Servicios cerrados</p>
+        </div>
+      </div>
+      <button type="button" class="btn-history-close" id="btnCloseHistoryTop">
+        <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        Cerrar
+      </button>
+    </div>
+
+    <!-- Barra de búsqueda y conteo -->
+    <div class="history-modal-bar">
+      <div class="history-search-container">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="historySearchInput" class="history-search-input" placeholder="Buscar por N° de Orden o últimos 8 del VIN..." autocomplete="off" />
+        <button type="button" id="btnClearHistorySearch" class="btn-clear-search" style="display:none;" title="Limpiar búsqueda">✕</button>
+      </div>
+      <div class="history-count-badge">
+        Mostrando <strong id="historyFilteredCount">0</strong> de <strong id="historyTotalCount">0</strong> terminados
+      </div>
+    </div>
+
+    <!-- Contenedor scrollable con agrupaciones por día -->
+    <div class="history-modal-body" id="historyModalBody">
+      <div class="empty-state" id="emptyHistory" style="display:none;">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM12 6c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 8c-2.33 0-7 1.17-7 3.5V19h14v-1.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        <h3 id="emptyHistoryTitle">No hay vehículos en el historial todavía</h3>
+        <p id="emptyHistoryMsg">Cuando un asesor finalice un cliente con el botón "Terminar cliente", se registrará aquí de manera permanente.</p>
+      </div>
+      
+      <!-- Contenedor dinámico de grupos por día -->
+      <div id="historyGroupsContainer"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ── JAVASCRIPT: LÓGICA Y API SQLITE ──
+     ════════════════════════════════════════ -->
+<script>
+  // ════════════════════════════════════════
+  // 👤 GESTIÓN DE SESIÓN DE ASESORES
+  // ════════════════════════════════════════
+  let currentAdvisor = null;
+  let pollingInterval = null;
+
+  const loginOverlay   = document.getElementById('loginOverlay');
+  const advisorSelect  = document.getElementById('advisorSelect');
+  const btnLogin       = document.getElementById('btnLogin');
+  const loginError     = document.getElementById('loginError');
+  const advisorBadge   = document.getElementById('advisorBadge');
+  const advisorDisplayName = document.getElementById('advisorDisplayName');
+  const advisorAvatar  = document.getElementById('advisorAvatar');
+  const btnLogout      = document.getElementById('btnLogout');
+
+  function initSession() {
+    const savedAdvisor = localStorage.getItem('asesor_activo');
+    if (savedAdvisor) {
+      setAdvisor(savedAdvisor);
+    } else {
+      showLoginModal();
+    }
+  }
+
+  function showLoginModal() {
+    loginOverlay.classList.remove('hidden');
+    advisorBadge.style.display = 'none';
+    if (pollingInterval) clearInterval(pollingInterval);
+  }
+
+  function setAdvisor(name) {
+    currentAdvisor = name;
+    localStorage.setItem('asesor_activo', name);
+    loginOverlay.classList.add('hidden');
+    loginError.style.display = 'none';
+
+    // Mostrar en header
+    advisorBadge.style.display = 'flex';
+    advisorDisplayName.textContent = name;
+    advisorAvatar.textContent = name.replace('Asesor ', 'A') || 'A';
+
+    // Iniciar sincronización continua
+    loadTickets();
+    if (!pollingInterval) {
+      pollingInterval = setInterval(loadTickets, 2500);
+    }
+    preloadHistory();
+  }
+
+  btnLogin.addEventListener('click', () => {
+    const selected = advisorSelect.value;
+    if (!selected) {
+      loginError.style.display = 'block';
+      return;
+    }
+    setAdvisor(selected);
+  });
+
+  btnLogout.addEventListener('click', () => {
+    if (confirm('¿Deseas cerrar sesión o cambiar de asesor?')) {
+      localStorage.removeItem('asesor_activo');
+      currentAdvisor = null;
+      advisorSelect.value = '';
+      showLoginModal();
+    }
+  });
+
+  // ── Conexión estado ──
+  const connDot  = document.getElementById('connDot');
+  const connText = document.getElementById('connText');
+
+  function setConnectionStatus(connected) {
+    if (connected) {
+      connDot.className = 'conn-dot connected';
+      connText.textContent = 'En vivo (SQLite)';
+    } else {
+      connDot.className = 'conn-dot connecting';
+      connText.textContent = 'Reconectando…';
+    }
+  }
+
+  // ── Reloj en vivo ──
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clockTime').textContent =
+      now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('clockDate').textContent =
+      now.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  // ── Formateo de fechas y tiempos ──
+  function formatTime(ts) {
+    if (!ts) return '—';
+    return new Date(ts).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatDate(ts) {
+    if (!ts) return '—';
+    return new Date(ts).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+  }
+
+  function waitingLabel(ts) {
+    const mins = Math.floor((Date.now() - ts) / 60000);
+    if (mins < 1)  return { text: 'Recién llegado', cls: 'fresh' };
+    if (mins < 30) return { text: `${mins} min espera`, cls: 'fresh' };
+    if (mins < 60) return { text: `${mins} min espera`, cls: 'medium' };
+    const hrs = Math.floor(mins / 60);
+    const rem = mins % 60;
+    return { text: `${hrs}h ${rem}m espera`, cls: 'late' };
+  }
+
+  // ════════════════════════════════════════
+  // ── CONSTRUCCIÓN DE TARJETAS ──
+  // ════════════════════════════════════════
+  function createCardElement(item, isMyClient) {
+    const card = document.createElement('div');
+    card.className = 'vehicle-card';
+    card.id = 'card-' + item.id;
+    card.dataset.ts = item.timestamp || 0;
+    card._data = item;
+    card._id = item.id;
+    card._isMyClient = isMyClient;
+
+    const wait = waitingLabel(item.timestamp);
+
+    const statusBadgeHtml = isMyClient
+      ? `<span class="card-badge-status in-progress">En atención (${item.asesor_asignado || currentAdvisor})</span>`
+      : `<span class="card-badge-status ${wait.cls}">${wait.text}</span>`;
+
+    const buttonClass = isMyClient ? 'btn-details my-client' : 'btn-details';
+
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <div class="card-placa">${item.placa || '—'}</div>
+          <div>${statusBadgeHtml}</div>
+        </div>
+        <div class="card-arrival">
+          <div class="card-arrival-label">Llegó a las</div>
+          <div class="card-arrival-time">${formatTime(item.timestamp)}</div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="card-vehicle-head">
+          <div class="car-icon-sm">
+            <svg viewBox="0 0 24 24"><path d="M5 11l1.5-4.5h11L19 11M17.5 16a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-8 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0M3 11h18v6H3z"/></svg>
+          </div>
+          <div>
+            <div class="card-model">${item.modelo || '—'}</div>
+            <div class="card-year">${item.anio || ''}${item.vin ? ' · VIN: ' + item.vin.slice(-8) : ''}</div>
+          </div>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <div class="card-info-row">
+          <span class="info-label">Cliente</span>
+          <span class="info-value">${item.nombre || '—'}</span>
+        </div>
+
+        <div class="card-reason">
+          <div class="info-label">A qué viene / Orden</div>
+          <div class="info-value">${(item.aQueViene && item.aQueViene !== '—') ? item.aQueViene : 'No especificado'}</div>
+        </div>
+      </div>
+
+      <button class="${buttonClass}" onclick="openDetails(${item.id})">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Ver detalles
+      </button>
+    `;
+
+    return card;
+  }
+
+  // ════════════════════════════════════════
+  // ── MODAL DE DETALLES DEL VEHÍCULO ──
+  // ════════════════════════════════════════
+  const modal          = document.getElementById('detailModal');
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalCloseX   = document.getElementById('modalCloseX');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const modalBody     = document.getElementById('modalBody');
+  const modalPlaca    = document.getElementById('modalPlaca');
+  const modalMeta     = document.getElementById('modalMeta');
+  const modalActionContainer = document.getElementById('modalActionContainer');
+
+  let activeModalVehicle = null;
+
+  function rowHtml(key, val) {
+    if (val === undefined || val === null || val === '') return '';
+    return `
+      <div class="detail-row">
+        <span class="detail-key">${key}</span>
+        <span class="detail-val">${val}</span>
+      </div>`;
+  }
+
+  function openDetails(id) {
+    const card = document.getElementById('card-' + id);
+    if (!card || !card._data) return;
+
+    const data = card._data;
+    const isMyClient = card._isMyClient;
+    activeModalVehicle = { id, data, isMyClient };
+
+    modalPlaca.textContent = data.placa || '—';
+    modalMeta.textContent = `${data.modelo || ''} ${data.anio || ''}  ·  Llegada: ${formatTime(data.timestamp)} (${formatDate(data.timestamp)})`;
+
+    const aQueViene = (data.aQueViene && data.aQueViene !== '—') ? data.aQueViene : 'No especificado';
+    const kmFormatted = data.kilometraje ? Number(data.kilometraje).toLocaleString('es-MX') + ' km' : '—';
+
+    modalBody.innerHTML = `
+      <div class="detail-section-title">Vehículo</div>
+      ${rowHtml('Hora de llegada', formatTime(data.timestamp) + ' (' + formatDate(data.timestamp) + ')')}
+      ${rowHtml('A qué viene / Orden', `<span class="detail-val highlight">${aQueViene}</span>`)}
+      ${rowHtml('Modelo', data.modelo)}
+      ${rowHtml('Año', data.anio)}
+      ${rowHtml('Placa', data.placa)}
+      ${rowHtml('Número de Serie (VIN)', data.vin ? `<span style="font-family:monospace; font-weight:700; background:var(--gray-100); padding:2px 6px; border-radius:4px; letter-spacing:.05em;">${data.vin}</span>` : 'No registrado')}
+      ${rowHtml('Kilometraje', kmFormatted)}
+
+      <div class="detail-section-title">Cliente</div>
+      ${rowHtml('Nombre', data.nombre)}
+      ${rowHtml('Número de teléfono', data.telefono)}
+      ${rowHtml('Correo electrónico', data.email || '—')}
+
+      ${data.asesor_asignado ? `
+        <div class="detail-section-title">Estado de Atención</div>
+        ${rowHtml('Asesor a cargo', `<strong style="color:var(--chevy-gold);">${data.asesor_asignado}</strong>`)}
+      ` : ''}
+    `;
+
+    if (isMyClient) {
+      modalActionContainer.innerHTML = `
+        <button class="btn-action-finish" id="btnFinishClient">
+          <svg viewBox="0 0 24 24" style="width:17px; height:17px; fill:currentColor;"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+          Terminar cliente
+        </button>
+      `;
+      document.getElementById('btnFinishClient').addEventListener('click', requestOrderNumber);
+    } else {
+      modalActionContainer.innerHTML = `
+        <button class="btn-action-attend" id="btnAttendClient">
+          <svg viewBox="0 0 24 24" style="width:17px; height:17px; fill:currentColor;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><polyline points="16 11 18 13 22 9"/></svg>
+          Atender y quitar de la fila
+        </button>
+      `;
+      document.getElementById('btnAttendClient').addEventListener('click', attendClient);
+    }
+
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    activeModalVehicle = null;
+  }
+
+  modalCloseBtn.addEventListener('click', closeModal);
+  modalCloseX.addEventListener('click', closeModal);
+  modalBackdrop.addEventListener('click', closeModal);
+
+  // ════════════════════════════════════════
+  // ── ATENDER CLIENTE (PUT /api/tickets/:id/atender) ──
+  // ════════════════════════════════════════
+  async function attendClient() {
+    if (!activeModalVehicle || !currentAdvisor) return;
+    const { id } = activeModalVehicle;
+
+    const btn = document.getElementById('btnAttendClient');
+    if (btn) {
+      btn.classList.add('btn-disabled');
+      btn.textContent = 'Asignando asesor…';
+    }
+
+    try {
+      const res = await fetch(`/api/tickets/${id}/atender`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ asesor_asignado: currentAdvisor })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Error al atender ticket');
+      }
+
+      closeModal();
+      loadTickets();
+    } catch (err) {
+      console.error('Error al atender vehículo:', err);
+      alert('Error al actualizar en la base de datos: ' + err.message);
+      if (btn) {
+        btn.classList.remove('btn-disabled');
+        btn.textContent = 'Atender y quitar de la fila';
+      }
+    }
+  }
+
+  // ════════════════════════════════════════
+  // 📝 MODAL DE NÚMERO DE ORDEN (5 DÍGITOS OBLIGATORIO)
+  // ════════════════════════════════════════
+  const orderModal          = document.getElementById('orderModal');
+  const orderModalBackdrop  = document.getElementById('orderModalBackdrop');
+  const inputNumeroOrden    = document.getElementById('inputNumeroOrden');
+  const orderDigitsCounter  = document.getElementById('orderDigitsCounter');
+  const orderErrorMsg       = document.getElementById('orderErrorMsg');
+  const btnCancelOrder      = document.getElementById('btnCancelOrder');
+  const btnConfirmOrder     = document.getElementById('btnConfirmOrder');
+  const orderSummaryPlaca   = document.getElementById('orderSummaryPlaca');
+  const orderSummaryModelo  = document.getElementById('orderSummaryModelo');
+  const orderSummaryCliente = document.getElementById('orderSummaryCliente');
+
+  function requestOrderNumber() {
+    if (!activeModalVehicle || !currentAdvisor) return;
+    const { data } = activeModalVehicle;
+
+    orderSummaryPlaca.textContent = data.placa || '—';
+    orderSummaryModelo.textContent = `${data.modelo || ''} ${data.anio || ''}`;
+    orderSummaryCliente.textContent = `Cliente: ${data.nombre || '—'}`;
+
+    inputNumeroOrden.value = '';
+    orderDigitsCounter.textContent = 'Dígitos: 0 / 5 (Requerido: 5 dígitos numéricos)';
+    orderDigitsCounter.className = 'order-counter-badge invalid';
+    orderErrorMsg.style.display = 'none';
+
+    btnConfirmOrder.classList.remove('btn-disabled');
+    btnConfirmOrder.innerHTML = `
+      <svg viewBox="0 0 24 24" style="width:17px; height:17px; fill:currentColor;"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+      Confirmar y Guardar`;
+
+    orderModal.style.display = 'flex';
+    setTimeout(() => inputNumeroOrden.focus(), 100);
+  }
+
+  function closeOrderModal() {
+    orderModal.style.display = 'none';
+    orderErrorMsg.style.display = 'none';
+  }
+
+  btnCancelOrder.addEventListener('click', closeOrderModal);
+  orderModalBackdrop.addEventListener('click', closeOrderModal);
+
+  // Validación estricta y contador numérico en tiempo real
+  inputNumeroOrden.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').slice(0, 5);
+    const len = this.value.length;
+    orderDigitsCounter.textContent = `Dígitos: ${len} / 5 (Requerido: 5 dígitos numéricos)`;
+    if (len === 5) {
+      orderDigitsCounter.className = 'order-counter-badge valid';
+      orderErrorMsg.style.display = 'none';
+    } else {
+      orderDigitsCounter.className = 'order-counter-badge invalid';
+    }
+  });
+
+  inputNumeroOrden.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      confirmOrderAndFinish();
+    }
+  });
+
+  btnConfirmOrder.addEventListener('click', confirmOrderAndFinish);
+
+  async function confirmOrderAndFinish() {
+    if (!activeModalVehicle || !currentAdvisor) return;
+    const { id } = activeModalVehicle;
+
+    const orderVal = inputNumeroOrden.value.trim();
+
+    // Validación estricta de 5 dígitos
+    if (!/^\d{5}$/.test(orderVal)) {
+      orderErrorMsg.textContent = 'El Número de Orden es obligatorio y debe tener exactamente 5 dígitos numéricos (ej. 12345).';
+      orderErrorMsg.style.display = 'block';
+      inputNumeroOrden.focus();
+      return;
+    }
+
+    btnConfirmOrder.classList.add('btn-disabled');
+    btnConfirmOrder.textContent = 'Guardando en historial…';
+
+    try {
+      const res = await fetch('/api/tickets/cerrar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: id,
+          numero_orden: orderVal
+        })
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || 'Error al cerrar el servicio.');
+      }
+
+      closeOrderModal();
+      closeModal();
+      loadTickets();
+      preloadHistory();
+    } catch (err) {
+      console.error('Error al terminar cliente:', err);
+      alert('Error: ' + err.message);
+      btnConfirmOrder.classList.remove('btn-disabled');
+      btnConfirmOrder.innerHTML = `
+        <svg viewBox="0 0 24 24" style="width:17px; height:17px; fill:currentColor;"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+        Confirmar y Guardar`;
+    }
+  }
+
+  // ════════════════════════════════════════
+  // 📜 MODAL DE HISTORIAL GENERAL
+  // ════════════════════════════════════════
+  const historyModal          = document.getElementById('historyModal');
+  const historyModalBackdrop  = document.getElementById('historyModalBackdrop');
+  const btnOpenHistory        = document.getElementById('btnOpenHistory');
+  const btnCloseHistoryTop    = document.getElementById('btnCloseHistoryTop');
+  const historySearchInput    = document.getElementById('historySearchInput');
+  const btnClearHistorySearch = document.getElementById('btnClearHistorySearch');
+  const historyFilteredCount  = document.getElementById('historyFilteredCount');
+  const historyTotalCount     = document.getElementById('historyTotalCount');
+  const historyGroupsContainer = document.getElementById('historyGroupsContainer');
+  const emptyHistory          = document.getElementById('emptyHistory');
+  const emptyHistoryTitle     = document.getElementById('emptyHistoryTitle');
+  const emptyHistoryMsg       = document.getElementById('emptyHistoryMsg');
+
+  let allHistoryEntries = [];
+
+  function openHistoryModal() {
+    historyModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    preloadHistory();
+    setTimeout(() => {
+      if (historySearchInput) historySearchInput.focus();
+    }, 150);
+  }
+
+  function closeHistoryModal() {
+    historyModal.style.display = 'none';
+    if (!modal.classList.contains('open') && orderModal.style.display !== 'flex') {
+      document.body.style.overflow = '';
+    }
+  }
+
+  btnOpenHistory.addEventListener('click', openHistoryModal);
+  btnCloseHistoryTop.addEventListener('click', closeHistoryModal);
+  historyModalBackdrop.addEventListener('click', closeHistoryModal);
+
+  if (btnClearHistorySearch) {
+    btnClearHistorySearch.addEventListener('click', () => {
+      historySearchInput.value = '';
+      filterAndRenderHistory();
+      historySearchInput.focus();
+    });
+  }
+
+  if (historySearchInput) {
+    historySearchInput.addEventListener('input', () => {
+      filterAndRenderHistory();
+    });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (orderModal && orderModal.style.display === 'flex') {
+        closeOrderModal();
+      } else if (historyModal && historyModal.style.display === 'flex') {
+        closeHistoryModal();
+      } else {
+        closeModal();
+      }
+    }
+  });
+
+  async function preloadHistory() {
+    try {
+      const res = await fetch('/api/historial');
+      if (res.ok) {
+        allHistoryEntries = await res.json();
+        allHistoryEntries.sort((a, b) => (b.hora_terminado || 0) - (a.hora_terminado || 0));
+        filterAndRenderHistory();
+      }
+    } catch (err) {
+      console.error('Error al precargar historial:', err);
+    }
+  }
+
+  // Formato del encabezado de día: ej. "--- 24 de Septiembre de 2026 ---"
+  function formatDayHeader(ts) {
+    if (!ts) return '--- Fecha no registrada ---';
+    const d = new Date(ts);
+    const dia = d.getDate();
+    const mes = d.toLocaleDateString('es-MX', { month: 'long' });
+    const mesCapitalizado = mes.charAt(0).toUpperCase() + mes.slice(1);
+    const anio = d.getFullYear();
+    return `--- ${dia} de ${mesCapitalizado} de ${anio} ---`;
+  }
+
+  function getDayKey(ts) {
+    if (!ts) return 'sin_fecha';
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  // Buscador y Separadores por Día
+  function filterAndRenderHistory() {
+    const query = historySearchInput ? historySearchInput.value.trim().toUpperCase() : '';
+
+    if (btnClearHistorySearch) {
+      btnClearHistorySearch.style.display = query ? 'inline-block' : 'none';
+    }
+
+    const filtered = allHistoryEntries.filter(item => {
+      if (!query) return true;
+      const ordenStr = String(item.numero_orden || '').toUpperCase();
+      const vinStr = String(item.vin || '').toUpperCase();
+      const vinLast8 = vinStr.slice(-8);
+
+      const matchOrden = ordenStr.includes(query);
+      const matchVinLast8 = vinLast8.includes(query);
+      const matchVinFull = vinStr.includes(query);
+
+      return matchOrden || matchVinLast8 || matchVinFull;
+    });
+
+    historyFilteredCount.textContent = filtered.length;
+    historyTotalCount.textContent = allHistoryEntries.length;
+
+    if (allHistoryEntries.length === 0) {
+      historyGroupsContainer.innerHTML = '';
+      emptyHistory.style.display = 'flex';
+      emptyHistoryTitle.textContent = 'No hay vehículos en el historial todavía';
+      emptyHistoryMsg.textContent = 'Cuando un asesor finalice un cliente con el botón "Terminar cliente", se registrará aquí de manera permanente.';
+      return;
+    }
+
+    if (filtered.length === 0) {
+      historyGroupsContainer.innerHTML = '';
+      emptyHistory.style.display = 'flex';
+      emptyHistoryTitle.textContent = 'Sin resultados';
+      emptyHistoryMsg.textContent = `No se encontraron vehículos que coincidan con "${query}". Prueba con otro número de orden o VIN.`;
+      return;
+    }
+
+    emptyHistory.style.display = 'none';
+    historyGroupsContainer.innerHTML = '';
+
+    // Agrupar por día
+    const groups = {};
+    filtered.forEach(item => {
+      const dayKey = getDayKey(item.hora_terminado);
+      if (!groups[dayKey]) {
+        groups[dayKey] = {
+          header: formatDayHeader(item.hora_terminado),
+          items: []
+        };
+      }
+      groups[dayKey].items.push(item);
+    });
+
+    Object.keys(groups).forEach(key => {
+      const group = groups[key];
+      const groupEl = document.createElement('div');
+      groupEl.className = 'history-day-group';
+
+      groupEl.innerHTML = `
+        <div class="history-day-divider">
+          <div class="history-day-line"></div>
+          <div class="history-day-badge">
+            <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:var(--chevy-gold);"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+            <span>${group.header}</span>
+          </div>
+          <div class="history-day-line right"></div>
+        </div>
+        <div class="history-day-grid"></div>
+      `;
+
+      const gridEl = groupEl.querySelector('.history-day-grid');
+      group.items.forEach(item => {
+        gridEl.appendChild(createHistoryCardElement(item));
+      });
+
+      historyGroupsContainer.appendChild(groupEl);
+    });
+  }
+
+  function createHistoryCardElement(item) {
+    const card = document.createElement('div');
+    card.className = 'history-card';
+
+    const kmFormatted = item.kilometraje ? Number(item.kilometraje).toLocaleString('es-MX') + ' km' : '—';
+    const vinStr = item.vin || '';
+    const vinLast8 = vinStr.length >= 8 ? vinStr.slice(-8) : '';
+    const vinPrefix = vinStr.length > 8 ? vinStr.slice(0, vinStr.length - 8) : '';
+
+    const vinBadge = vinStr
+      ? `<span class="history-vin-badge" title="VIN: ${vinStr}">${vinPrefix ? '<span style="opacity:0.6;">' + vinPrefix + '</span>' : ''}<strong>${vinLast8}</strong></span>`
+      : '<span style="color:#94A3B8;">No registrado</span>';
+
+    const aQueViene = (item.aQueViene && item.aQueViene !== '—') ? item.aQueViene : 'No especificado';
+
+    const llegadaStr = item.hora_llegada
+      ? `${formatTime(item.hora_llegada)} (${formatDate(item.hora_llegada)})`
+      : '—';
+
+    const terminadoStr = item.hora_terminado
+      ? `${formatTime(item.hora_terminado)} (${formatDate(item.hora_terminado)})`
+      : '—';
+
+    const ordenDisplay = item.numero_orden ? '#' + item.numero_orden : 'S/N';
+
+    card.innerHTML = `
+      <div class="history-card-advisor">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <span>Atendido por: <strong>${item.asesor_asignado || 'No asignado'}</strong></span>
+      </div>
+
+      <div class="history-card-top">
+        <div>
+          <div class="history-card-placa">${item.placa || '—'}</div>
+          ${item.numero_orden ? `<span class="history-orden-badge">Orden: #${item.numero_orden}</span>` : ''}
+        </div>
+        <div class="history-card-status-badge">Terminado</div>
+      </div>
+
+      <div class="history-card-body">
+        <div class="history-row" style="background:#e2e8f0; padding:6px 10px; border-radius:8px; margin-bottom:2px;">
+          <span class="history-key" style="color:var(--gm-navy-dark); font-weight:800;">Número de Orden</span>
+          <span class="history-val" style="color:var(--gm-blue); font-size:1.05rem; font-weight:900; letter-spacing:.05em;">${ordenDisplay}</span>
+        </div>
+
+        <div class="history-row">
+          <span class="history-key">Modelo / Año</span>
+          <span class="history-val">${item.modelo || '—'} ${item.anio || ''}</span>
+        </div>
+
+        <div class="history-row">
+          <span class="history-key">N° Serie (VIN)</span>
+          <span class="history-val">${vinBadge}</span>
+        </div>
+
+        <div class="history-row">
+          <span class="history-key">Kilometraje</span>
+          <span class="history-val">${kmFormatted}</span>
+        </div>
+
+        <div class="history-row">
+          <span class="history-key">Cliente</span>
+          <span class="history-val">${item.nombre || '—'}</span>
+        </div>
+
+        <div class="history-row">
+          <span class="history-key">Teléfono</span>
+          <span class="history-val">${item.telefono || '—'}</span>
+        </div>
+
+        ${item.email ? `
+        <div class="history-row">
+          <span class="history-key">Correo</span>
+          <span class="history-val">${item.email}</span>
+        </div>` : ''}
+
+        <div class="history-reason-box">
+          <span class="history-key">A qué vino / Orden:</span>
+          <span class="history-val">${aQueViene}</span>
+        </div>
+
+        <div class="history-row" style="margin-top:4px;">
+          <span class="history-key">Llegada</span>
+          <span class="history-val" style="color:#64748B;">${llegadaStr}</span>
+        </div>
+
+        <div class="history-row">
+          <span class="history-key">Terminado</span>
+          <span class="history-val" style="color:#047857; font-weight:800;">${terminadoStr}</span>
+        </div>
+      </div>
+    `;
+
+    return card;
+  }
+
+  // ════════════════════════════════════════
+  // ── CARGA Y SINCRONIZACIÓN CONTINUA ──
+  // ════════════════════════════════════════
+  const gridGeneral  = document.getElementById('gridGeneral');
+  const emptyGeneral = document.getElementById('emptyGeneral');
+  const countGeneral = document.getElementById('countGeneral');
+
+  const gridMy       = document.getElementById('gridMy');
+  const emptyMy      = document.getElementById('emptyMy');
+  const countMy      = document.getElementById('countMy');
+
+  async function loadTickets() {
+    if (!currentAdvisor) return;
+
+    try {
+      const res = await fetch('/api/tickets');
+      if (!res.ok) throw new Error('Error de conexión');
+
+      setConnectionStatus(true);
+      const entries = await res.json();
+
+      entries.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+      // 1. Fila general: autos sin asesor asignado
+      const generalItems = entries.filter(item => !item.asesor_asignado);
+
+      // 2. Mis clientes: autos asignados ÚNICAMENTE al asesor actual
+      const myItems = entries.filter(item => item.asesor_asignado === currentAdvisor);
+
+      renderSection(gridGeneral, emptyGeneral, countGeneral, generalItems, false);
+      renderSection(gridMy, emptyMy, countMy, myItems, true);
+    } catch (err) {
+      console.warn('Fallo al obtener tickets:', err.message);
+      setConnectionStatus(false);
+    }
+  }
+
+  function renderSection(gridEl, emptyEl, countEl, items, isMyClient) {
+    countEl.textContent = items.length;
+
+    if (items.length === 0) {
+      gridEl.style.display = 'none';
+      gridEl.innerHTML = '';
+      emptyEl.style.display = 'flex';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+    gridEl.style.display = 'grid';
+
+    // Reconciliación sencilla de tarjetas
+    const currentCardIds = Array.from(gridEl.children).map(c => parseInt(c._id, 10));
+    const newIds = items.map(i => i.id);
+
+    // Si la lista de IDs cambia o se actualiza, redibujar limpiamente
+    const isSame = currentCardIds.length === newIds.length && currentCardIds.every((id, idx) => id === newIds[idx]);
+    if (!isSame) {
+      gridEl.innerHTML = '';
+      items.forEach(item => {
+        const card = createCardElement(item, isMyClient);
+        gridEl.appendChild(card);
+      });
+    }
+  }
+
+  // Actualizar etiquetas de espera cada 60s
+  setInterval(() => {
+    document.querySelectorAll('.vehicle-card').forEach(card => {
+      if (card._isMyClient) return;
+      const ts = parseInt(card.dataset.ts, 10);
+      if (!ts) return;
+      const badge = card.querySelector('.card-badge-status');
+      if (!badge) return;
+      const { text, cls } = waitingLabel(ts);
+      badge.textContent = text;
+      badge.className = 'card-badge-status ' + cls;
+    });
+  }, 60000);
+
+  // Inicializar al cargar
+  window.addEventListener('DOMContentLoaded', initSession);
+</script>
+
+</body>
+</html>

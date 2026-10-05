@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Recepción — Sistema de Tickets Automotriz | Chevrolet Chilpancingo</title>
+  <style>
+    /* ── Reset & Variables Corporativas GM / Chevrolet ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gm-navy-dark:   #0d1b2a;
+      --gm-navy:        #132238;
+      --gm-blue:        #003366;
+      --gm-blue-light:  #0055a5;
+      --chevy-gold:     #c5a059;
+      --chevy-gold-lt:  #dfb76c;
+      --white:          #ffffff;
+      --gray-50:        #f8fafc;
+      --gray-100:       #f1f5f9;
+      --gray-200:       #e2e8f0;
+      --gray-300:       #cbd5e1;
+      --gray-400:       #94a3b8;
+      --gray-600:       #475569;
+      --red:            #ef4444;
+      --green:          #10b981;
+      --radius:         14px;
+      --shadow-sm:      0 4px 14px rgba(0,0,0,0.15);
+      --shadow-lg:      0 12px 36px rgba(13,27,42,0.22);
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0a1420;
+      color: var(--gm-navy-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 51, 102, 0.45) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(197, 160, 89, 0.15) 0%, transparent 45%);
+      background-attachment: fixed;
+    }
+
+    /* ── Header Corporativo ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13, 27, 42, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--chevy-gold);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Emblema Chevrolet Bowtie dorado */
+    .chevy-emblem {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #1b2e4b 0%, #0d1b2a 100%);
+      border: 1.5px solid var(--chevy-gold);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(197, 160, 89, 0.25);
+      flex-shrink: 0;
+    }
+
+    .chevy-emblem svg {
+      width: 30px;
+      height: 14px;
+    }
+
+    .header-titles h1 {
+      color: var(--white);
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: .02em;
+      line-height: 1.2;
+    }
+
+    .header-titles .subtitle {
+      color: var(--chevy-gold-lt);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* Distintivo de marcas GM */
+    .gm-badge-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.06);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .gm-badge-strip span {
+      color: var(--chevy-gold);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-date {
+      text-align: right;
+      color: var(--white);
+      background: rgba(255,255,255,0.05);
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .header-date .date-day {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--chevy-gold);
+      line-height: 1;
+    }
+
+    .header-date .date-month {
+      font-size: .7rem;
+      color: rgba(255,255,255,0.8);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 2px;
+    }
+
+    /* ── Main Container ── */
+    main {
+      padding: 22px 16px 50px;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    /* Link to advisors */
+    .advisors-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 18px;
+      background: linear-gradient(135deg, rgba(0, 51, 102, 0.8) 0%, rgba(13, 27, 42, 0.9) 100%);
+      color: white;
+      border: 1.5px solid var(--chevy-gold);
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-size: .84rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: .03em;
+      box-shadow: var(--shadow-sm);
+      transition: all .2s;
+    }
+
+    .advisors-link:hover {
+      background: linear-gradient(135deg, var(--gm-blue) 0%, #004c99 100%);
+      color: var(--chevy-gold-lt);
+      transform: translateY(-1px);
+    }
+
+    .advisors-link svg { width: 18px; height: 18px; fill: currentColor; }
+
+    /* Status bar */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: rgba(13, 27, 42, 0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 18px;
+      font-size: .75rem;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gray-400);
+      flex-shrink: 0;
+    }
+
+    .status-dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .status-dot.connecting { background: var(--chevy-gold); animation: pulse 1.2s infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+    /* ── Tarjetas de Sección Formulario ── */
+    .section-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      margin-bottom: 20px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .section-header {
+      background: linear-gradient(135deg, var(--gm-navy-dark) 0%, var(--gm-blue) 100%);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--chevy-gold);
+    }
+
+    .section-icon-box {
+      width: 28px;
+      height: 28px;
+      background: rgba(197, 160, 89, 0.2);
+      border: 1px solid var(--chevy-gold);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .section-icon-box svg { width: 16px; height: 16px; fill: var(--chevy-gold-lt); }
+
+    .section-header h2 {
+      color: var(--white);
+      font-size: .88rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .section-body { padding: 20px 18px; }
+
+    /* ── Campos del Formulario ── */
+    .field { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--gm-navy-dark);
+      margin-bottom: 6px;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    label .req { color: var(--red); margin-left: 2px; }
+    label .opt { color: var(--gray-400); font-weight: 400; font-size: .7rem; margin-left: 4px; text-transform: lowercase; }
+
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1.5px solid var(--gray-300);
+      border-radius: 10px;
+      font-size: .98rem;
+      color: var(--gm-navy-dark);
+      background: var(--gray-50);
+      transition: all .2s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--gm-blue-light);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(0, 85, 165, 0.18);
+    }
+
+    input::placeholder { color: var(--gray-400); font-size: .92rem; }
+
+    .field-error {
+      font-size: .74rem;
+      font-weight: 600;
+      color: var(--red);
+      margin-top: 5px;
+      display: none;
+    }
+
+    .field.has-error .field-error { display: block; }
+    .field.has-error input { border-color: var(--red); background: #FFF5F5; }
+
+    /* Contador VIN */
+    .vin-counter {
+      display: block;
+      font-size: .75rem;
+      font-weight: 800;
+      margin-top: 5px;
+      transition: color .2s ease;
+    }
+
+    .vin-counter.invalid { color: var(--red); }
+    .vin-counter.valid { color: var(--green); }
+
+    /* ── Botón de Envío Institucional ── */
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--gm-blue) 0%, var(--gm-navy-dark) 100%);
+      color: var(--white);
+      border: 2px solid var(--chevy-gold);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all .2s;
+      box-shadow: 0 8px 24px rgba(0, 51, 102, 0.35);
+      margin-top: 10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-submit:hover {
+      background: linear-gradient(135deg, #004c99 0%, var(--gm-navy) 100%);
+      color: var(--chevy-gold-lt);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(197, 160, 89, 0.3);
+    }
+
+    .btn-submit:active { transform: scale(.98); }
+
+    .btn-submit svg { width: 20px; height: 20px; fill: currentColor; }
+
+    .btn-submit.loading {
+      background: var(--gray-600);
+      border-color: var(--gray-400);
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-top-color: var(--chevy-gold);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-text { display: none; }
+    .btn-submit.loading svg { display: none; }
+
+    /* ── Toasts de Notificación ── */
+    #toast, #toast-error {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(140px);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: .88rem;
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      white-space: nowrap;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.4);
+    }
+
+    #toast {
+      background: #047857;
+      border: 1.5px solid #10b981;
+    }
+
+    #toast-error {
+      background: #b91c1c;
+      border: 1.5px solid #ef4444;
+    }
+
+    #toast.show, #toast-error.show { transform: translateX(-50%) translateY(0); }
+    #toast svg, #toast-error svg { width: 20px; height: 20px; fill: white; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<!-- ══ ENCABEZADO CORPORATIVO GM / CHEVROLET ══ -->
+<header>
+  <div class="header-left">
+    <div class="chevy-emblem" title="Chevrolet - General Motors">
+      <!-- Isotipo Chevrolet Bowtie Dorado -->
+      <svg viewBox="0 0 100 40">
+        <polygon points="35,0 65,0 65,12 100,12 95,28 65,28 65,40 35,40 35,28 0,28 5,12 35,12" fill="url(#goldGradient)" stroke="#f6e05e" stroke-width="2" />
+        <defs>
+          <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#dfb76c" />
+            <stop offset="50%" stop-color="#c5a059" />
+            <stop offset="100%" stop-color="#997327" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="header-titles">
+      <h1>Sistema de Tickets Automotriz</h1>
+      <div class="subtitle">Chevrolet Chilpancingo</div>
+      <div class="gm-badge-strip">
+        CHEVROLET <span>|</span> GMC <span>|</span> CADILLAC <span>|</span> BUICK
+      </div>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="header-date">
+      <div class="date-day" id="dateDay">—</div>
+      <div class="date-month" id="dateMonth">—</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ CONTENIDO PRINCIPAL ══ -->
+<main>
+
+  <!-- Enlace hacia tablero de asesores -->
+  <a href="asesores.html" class="advisors-link">
+    <svg viewBox="0 0 24 24"><path d="M3 3h18v14H3zm0 14l4 4h10l4-4"/></svg>
+    Ver tablero de asesores de servicio
+  </a>
+
+  <!-- Indicador de conexión SQLite / Servidor -->
+  <div class="status-bar">
+    <div class="status-dot connecting" id="statusDot"></div>
+    <span id="statusText">Conectando con el servidor local SQLite…</span>
+  </div>
+
+  <form id="vehicleForm" novalidate>
+
+    <!-- ── Sección 1: Vehículo ── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon-box">
+          <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <h2>Información del Vehículo</h2>
+      </div>
+      <div class="section-body">
+
+        <div class="field" id="field-aQueViene">
+          <label for="aQueViene">A qué viene / Orden <span class="opt">(opcional)</span></label>
+          <input type="text" id="aQueViene" name="aQueViene" placeholder="Ej. Servicio de 10,000 km, Revisión de frenos…" />
+        </div>
+
+        <div class="field" id="field-modelo">
+          <label for="modelo">Modelo <span class="req">*</span></label>
+          <input type="text" id="modelo" name="modelo" placeholder="Ej. Silverado, Aveo, Onix, Tracker, Suburban…" autocomplete="off" />
+          <span class="field-error">Este campo es obligatorio.</span>
+        </div>
+
+        <div class="field" id="field-anio">
+          <label for="anio">Año <span class="req">*</span></label>
+          <input type="number" id="anio" name="anio" placeholder="Ej. 2024" min="1900" max="2099" inputmode="numeric" pattern="[0-9]*" />
+          <span class="field-error">Ingresa un año válido.</span>
+        </div>
+
+        <div class="field" id="field-placa">
+          <label for="placa">Placa <span class="req">*</span></label>
+          <input type="text" id="placa" name="placa" placeholder="Ej. GZ-1234-E" autocomplete="off" style="text-transform:uppercase;" />
+          <span class="field-error">Este campo es obligatorio.</span>
+        </div>
+
+        <div class="field" id="field-vin">
+          <label for="vin">Número de Serie (VIN) <span class="req">*</span></label>
+          <input type="text" id="vin" name="vin" placeholder="Ej. 3GNAXKEV8LS000000 o 8LS00000" autocomplete="off" style="text-transform:uppercase;" />
+          <span id="vinCounter" class="vin-counter invalid">Caracteres: 0 (Requerido: 8 o 17)</span>
+          <span class="field-error">El número de serie debe tener exactamente 8 o 17 caracteres.</span>
+        </div>
+
+        <div class="field" id="field-kilometraje">
+          <label for="kilometraje">Kilometraje <span class="req">*</span></label>
+          <input type="number" id="kilometraje" name="kilometraje" placeholder="Ej. 45000" min="0" inputmode="numeric" pattern="[0-9]*" />
+          <span class="field-error">Ingresa un kilometraje válido.</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Sección 2: Cliente ── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon-box">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+        </div>
+        <h2>Información del Cliente</h2>
+      </div>
+      <div class="section-body">
+
+        <div class="field" id="field-nombre">
+          <label for="nombre">Nombre Completo <span class="req">*</span></label>
+          <input type="text" id="nombre" name="nombre" placeholder="Nombre y apellidos del propietario / cliente" autocomplete="name" />
+          <span class="field-error">Este campo es obligatorio.</span>
+        </div>
+
+        <div class="field" id="field-telefono">
+          <label for="telefono">Número de teléfono <span class="req">*</span></label>
+          <input type="number" id="telefono" name="telefono" placeholder="Ej. 7471234567" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" />
+          <span class="field-error">Ingresa un número de teléfono válido.</span>
+        </div>
+
+        <div class="field" id="field-email">
+          <label for="email">Correo electrónico <span class="opt">(opcional)</span></label>
+          <input type="email" id="email" name="email" placeholder="cliente@correo.com" autocomplete="email" />
+          <span class="field-error">Ingresa un correo electrónico válido.</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Botón Registrar -->
+    <button type="submit" class="btn-submit" id="btnSubmit">
+      <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      <span class="btn-text">Generar Ticket de Recepción</span>
+      <div class="spinner"></div>
+    </button>
+
+  </form>
+</main>
+
+<!-- Toasts de Éxito y Error -->
+<div id="toast">
+  <svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+  ¡Vehículo registrado exitosamente en el sistema!
+</div>
+
+<div id="toast-error">
+  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+  <span id="toastErrorText">Error al guardar el ticket. Revisa el servidor.</span>
+</div>
+
+<script>
+  // ── Conexión con Backend SQLite (Express API) ──
+  const dot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+
+  async function checkServerHealth() {
+    try {
+      const res = await fetch('/api/tickets');
+      if (res.ok) {
+        dot.className = 'status-dot connected';
+        statusText.textContent = 'Conectado a SQLite — Sistema de Tickets activo';
+      } else {
+        throw new Error('Error al conectar');
+      }
+    } catch (e) {
+      dot.className = 'status-dot connecting';
+      statusText.textContent = 'Reconectando con el servidor local SQLite…';
+    }
+  }
+
+  checkServerHealth();
+  setInterval(checkServerHealth, 10000);
+
+  // ── Fecha estática de encabezado ──
+  (function renderDate() {
+    const now = new Date();
+    const day = now.getDate();
+    const month = now.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' });
+    document.getElementById('dateDay').textContent = day;
+    document.getElementById('dateMonth').textContent = month;
+  })();
+
+  // ── Helpers ──
+  function setError(fieldId, msg) {
+    const el = document.getElementById('field-' + fieldId);
+    if (!el) return;
+    el.classList.add('has-error');
+    if (msg) el.querySelector('.field-error').textContent = msg;
+  }
+
+  function clearError(fieldId) {
+    const el = document.getElementById('field-' + fieldId);
+    if (el) el.classList.remove('has-error');
+  }
+
+  function showToast(id, msg) {
+    const t = document.getElementById(id);
+    if (id === 'toast-error' && msg) {
+      document.getElementById('toastErrorText').textContent = msg;
+    }
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3800);
+  }
+
+  function setLoading(state) {
+    const btn = document.getElementById('btnSubmit');
+    btn.classList.toggle('loading', state);
+    btn.disabled = state;
+  }
+
+  // ── Limpiar errores al escribir ──
+  ['modelo','anio','placa','vin','kilometraje','nombre','telefono','email'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => clearError(id));
+  });
+
+  // ── Contador y validación dinámica de VIN ──
+  const vinInput = document.getElementById('vin');
+  const vinCounter = document.getElementById('vinCounter');
+
+  function updateVinCounter() {
+    const len = vinInput.value.trim().length;
+    vinCounter.textContent = `Caracteres: ${len} (Requerido: 8 o 17)`;
+    if (len === 8 || len === 17) {
+      vinCounter.className = 'vin-counter valid';
+    } else {
+      vinCounter.className = 'vin-counter invalid';
+    }
+  }
+
+  vinInput.addEventListener('input', () => {
+    updateVinCounter();
+    clearError('vin');
+  });
+
+  vinInput.addEventListener('blur', function() {
+    this.value = this.value.toUpperCase();
+    updateVinCounter();
+  });
+
+  // ── Mayúsculas automáticas en placa ──
+  document.getElementById('placa').addEventListener('blur', function() {
+    this.value = this.value.toUpperCase();
+  });
+
+  // ── Envío del Formulario (fetch a Express API) ──
+  document.getElementById('vehicleForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let valid = true;
+
+    const val = id => document.getElementById(id).value.trim();
+
+    // Limpiar errores previos
+    ['modelo','anio','placa','vin','kilometraje','nombre','telefono','email'].forEach(clearError);
+
+    // Validaciones obligatorias
+    if (!val('modelo')) { setError('modelo', 'Este campo es obligatorio.'); valid = false; }
+
+    const anio = parseInt(val('anio'), 10);
+    if (!val('anio') || isNaN(anio) || anio < 1900 || anio > 2099) {
+      setError('anio', 'Ingresa un año válido (ej. 2024).'); valid = false;
+    }
+
+    if (!val('placa')) { setError('placa', 'Este campo es obligatorio.'); valid = false; }
+
+    // Validación estricta del VIN: exactamente 8 o 17 caracteres
+    const vinVal = val('vin').toUpperCase();
+    if (!vinVal) {
+      setError('vin', 'El número de serie es obligatorio (debe tener 8 o 17 caracteres).');
+      valid = false;
+    } else if (vinVal.length !== 8 && vinVal.length !== 17) {
+      setError('vin', `Tiene ${vinVal.length} caracteres. Debe tener exactamente 8 o 17 caracteres.`);
+      valid = false;
+    }
+
+    const km = parseInt(val('kilometraje'), 10);
+    if (!val('kilometraje') || isNaN(km) || km < 0) {
+      setError('kilometraje', 'Ingresa un kilometraje válido.'); valid = false;
+    }
+
+    if (!val('nombre')) { setError('nombre', 'Este campo es obligatorio.'); valid = false; }
+
+    if (!val('telefono')) { setError('telefono', 'Ingresa un número de teléfono.'); valid = false; }
+
+    // Email opcional con formato
+    const emailVal = val('email');
+    if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+      setError('email', 'Ingresa un correo electrónico válido.'); valid = false;
+    }
+
+    if (!valid) return;
+
+    setLoading(true);
+
+    const ticketData = {
+      aQueViene:   val('aQueViene') || '—',
+      modelo:      val('modelo'),
+      anio:        anio,
+      placa:       val('placa').toUpperCase(),
+      vin:         vinVal,
+      kilometraje: km,
+      nombre:      val('nombre'),
+      telefono:    val('telefono'),
+      email:       emailVal || ''
+    };
+
+    try {
+      const response = await fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(ticketData)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al guardar el ticket.');
+      }
+
+      showToast('toast');
+      document.getElementById('vehicleForm').reset();
+      updateVinCounter();
+    } catch (err) {
+      console.error('Error al registrar ticket:', err);
+      showToast('toast-error', err.message || 'Error al conectar con la base de datos.');
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>
+
+</body>
+</html>
